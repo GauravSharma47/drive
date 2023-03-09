@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load sizify %}
+{% block content %}
+
+<div class="mt-2">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold">My Drive</h1>
+    Remaining storage: {{remaining|sizify}}
+    {% if totalUsed < totalAllowed %} <button id="upload-btn"
+      class="py-2 px-4 bg-green-500 hover:bg-green-600 text-white rounded-md shadow-md transition duration-300">
+      Upload
+      </button>
+      {% endif %}
+  </div>
+
+  <div class="overflow-x-auto w-full">
+    <div class="min-w-screen bg-gray-100 flex items-center justify-center font-sans overflow-hidden">
+      <div class="w-full">
+        {% if messages %}
+        <ul>
+          {% for message in messages %}
+          <li{% if message.tags %} class="text-red-400 font-semibold" {% endif %}>Error: {{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <div class="bg-white shadow-md rounded my-6">
+          <table class="min-w-max w-full table-auto">
+            <thead>
+
+              <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <th class="py-3 px-6 text-left">Name</th>
+                <th class="py-3 px-6 text-left">Size</th>
+                <th class="py-3 px-6 text-left">Uploaded at</th>
+                <th class="py-3 px-6 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-600 text-sm font-light">
+              {% for file in files %}
+              <tr class="border-b border-gray-200 hover:bg-gray-100"
+                onclick="showPopup('{{file.file.url}}','{{file.id}}')">
+                <td class="py-3 px-6 text-left whitespace-nowrap">{{ file.name }}</td>
+                <td class="py-3 px-6 text-left">{{ file.size|sizify }}</td>
+                <td class="py-3 px-6 text-left">{{ file.createdAt }}</td>
+
+                <td class="py-3 px-6 text-center">
+                  <form style="display: inline" action="{% url 'delete' file.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit"
+                      class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                      Delete
+                    </button>
+
+                  </form>
+                  <form style="display: inline" action="{% url 'download_file' file.id %}" method="get">
+                    <button
+                      class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                      Download
+                    </button>
+                  </form>
+                </td>
+
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center py-4">No files found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="upload-popup" class="fixed z-10 inset-0 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+      </div>
+
+      <!-- Upload form -->
+      <div
+        class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <form method="post" action="{% url 'upload' remaining %}" enctype="multipart/form-data"
+          onsubmit="showOverlay('Uploading file','')">
+          {% csrf_token %}
+          <div class="bg-gray-50 px-4 py-5 sm:px-6">
+            <h2 class="text-lg font-medium leading-6 text-gray-900">
+              Upload a file
+            </h2>
+          </div>
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <label for="file" class="block text-gray-700 font-bold mb-2 sm:mb-4 mt-2">Choose a file to upload:</label>
+              <div class="sm:ml-4">
+                <div class="relative">
+                  {{form.file}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="submit"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
+              Upload
+            </button>
+            <button id="cancel-upload-btn" type="button"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:w-auto sm:text-sm"
+              @click="form.reset()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="popup-container" class="fixed z-10 inset-0 overflow-y-auto hidden w-full h-full">
+    <div class="flex items-center justify-center min-h-screen px-4 w-full h-full">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 opacity-75"></div>
+
+      <!-- Popup content -->
+      <div
+        class="inline-block align-bottom bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
+        <div id="popup-media" class="relative pb-2/3">
+          <!-- Image or video element goes here -->
+        </div>
+        <button id="popup-close-button"
+          class="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800 focus:outline-none w-10 h-10">
+          <div class="pointer-events-none">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+              <path
+                d="M6.707 6.293a1 1 0 011.414 0L12 10.586l3.879-3.879a1 1 0 111.414 1.414L13.414 12l3.879 3.879a1 1 0 01-1.414 1.414L12 13.414l-3.879 3.879a1 1 0 01-1.414-1.414L10.586 12 6.707 8.121a1 1 0 010-1.414z" />
+            </svg>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const popupContainer = document.getElementById('popup-container');
+  const popup = document.getElementById('popup');
+  // const popupTitle = document.getElementById('popup-title');
+  const popupMedia = document.getElementById('popup-media');
+  const closeButton = document.getElementById('popup-close-button');
+
+
+  function showPopup(url, id) {
+    const mediaTypes = {
+      'jpg': 'image',
+      'jpeg': 'image',
+      'png': 'image',
+      'gif': 'image',
+      'mp4': 'video',
+      'webm': 'video',
+      'ogg': 'video',
+      'mkv': 'video',
+    };
+    const extension = url.split('.').pop().toLowerCase();
+    const type = mediaTypes[extension];
+    if (type === 'image') {
+      const img = document.createElement('img')
+      img.src = url
+      img.alt = "Image"
+      img.classList.add('w-full')
+      img.classList.add('h-full')
+
+      popupMedia.appendChild(img)
+
+    } else if (type === 'video') {
+      popupMedia.innerHTML = `<video controls class="w-full h-full"><source src="${url}"></video>`;
+    }
+    popupContainer.classList.remove('hidden');
+  }
+
+  function hidePopup() {
+    popupContainer.classList.add('hidden');
+    popupMedia.innerHTML = '';
+  }
+
+  function handleClick(event) {
+    if (event.target.matches('.popup-link')) {
+      event.preventDefault();
+      const url = event.target.href;
+      showPopup(url);
+    } else if (event.target.matches('#popup-close-button')) {
+      hidePopup();
+    }
+  }
+
+  document.addEventListener('click', handleClick);
+
+
+  const uploadBtn = document.getElementById("upload-btn");
+  const uploadPopup = document.getElementById("upload-popup");
+  const cancelUploadBtn = document.getElementById("cancel-upload-btn");
+
+  // Show upload popup
+  uploadBtn.addEventListener("click", () => {
+    uploadPopup.classList.remove("hidden");
+  });
+
+  // Hide upload popup
+  cancelUploadBtn.addEventListener("click", () => {
+    uploadPopup.classList.add("hidden");
+  });
+
+</script>
+
+{% endblock %}

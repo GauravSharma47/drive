@@ -1,0 +1,54 @@
+{% load static tailwind_tags %}
+{% include 'components/loader.html' %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Storage</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  {% tailwind_css %}
+</head>
+
+<body class="h-full w-full bg-gray-100 flex">
+    {%block loader %}
+    {%endblock%}
+  <div class="flex h-full w-full">
+    <aside class="bg-white shadow h-screen w-1/5">
+      <div class="flex flex-col h-full justify-between">
+        <nav class="flex-1 my-4">
+          <a href="/"
+            class="block py-2 px-4 text-gray-800 font-bold {% if request.path == '/' %} text-gray-900 bg-gray-300 {% else %} hover:bg-gray-300 hover:text-gray-900  {% endif %}  my-2">Dashboard</a>
+          <a href="/profile"
+            class="block py-2 px-4 text-gray-800 font-bold {% if request.path == '/profile' %} text-gray-900 bg-gray-300 {% else %} hover:bg-gray-300 hover:text-gray-900  {% endif %} my-2">Profile</a>
+          <!-- <a href="/settings"
+            class="block py-2 px-4 text-gray-800 font-bold hover:bg-gray-300 hover:text-gray-900 my-2">Settings</a> -->
+        </nav>
+        <div class="mb-4">
+          <a href="/auth/logout"
+            class="block py-2 px-4 text-red-600 font-bold hover:bg-gray-300 hover:text-gray-900">Logout</a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col w-full px-4">
+      <div class="container mx-auto py-6 flex-1">
+        {% block content %}
+        <p>This is the content block. Replace this with your actual content.</p>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+  <script>
+    const button = document.querySelector("button");
+    const aside = document.querySelector("aside");
+    button.addEventListener("click", () => {
+      aside.classList.toggle("hidden");
+    });
+  </script>
+
+
+</body>
+
+</html>

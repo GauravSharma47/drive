@@ -1,0 +1,33 @@
+<div class="w-full max-w-md mx-auto">
+  <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" method="POST" action="{% url 'register' %}">
+    {% csrf_token %}
+    <h2 class="text-2xl mb-4">Register</h2>
+    {% if form.errors %}
+    <div
+      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+    >
+      <strong>Oops! Something went wrong:</strong>
+      <ul>
+        {% for error in form.errors %}
+        <li>{{ error|escape }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+   {{form}}
+    <div class="flex items-center justify-between">
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        type="submit"
+      >
+        Register
+      </button>
+      <a
+        class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+        href="password_reset"
+      >
+        Forgot Password?
+      </a>
+    </div>
+  </form>
+</div>

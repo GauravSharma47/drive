@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="w-full mx-auto py-2 sm:px-2 lg:px-2">
+  <div class="overflow-hidden bg-white shadow-xl sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h2 class="text-lg font-medium leading-6 text-gray-900">User Profile</h2>
+      <div class="mt-5">
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">
+              Username
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ user.username }}
+            </dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">
+              Email
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ user.email }}
+            </dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">
+              First Name
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ user.first_name }}
+            </dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">
+              Last Name
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ user.last_name }}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
